@@ -5,4 +5,3 @@ run.slurm
 tools/__pycache__/
 log.out
 git_op.sh
-.gitignore
