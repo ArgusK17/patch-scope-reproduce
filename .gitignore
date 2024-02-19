@@ -4,3 +4,4 @@ results/
 run.slurm
 tools/__pycache__/
 log.out
+git_operations.sh
