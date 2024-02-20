@@ -8,7 +8,7 @@ class translation_task:
       self.answers=None
       self.info={}
 
-def gen_task(prompt_num=1, example_num=3, seed=0, same_task=True, to_lg=0):
+def gen_task(prompt_num=1, example_num=3, seed=0, same_task=False, from_lg=1, to_lg=0, mode="train"):
     random.seed(seed)
     task=translation_task()
 
@@ -19,30 +19,40 @@ def gen_task(prompt_num=1, example_num=3, seed=0, same_task=True, to_lg=0):
         for row in reader:
             vocabulary.append(row)
 
+    train_test_split=400
+
     if same_task:
-        task_id=random.randint(0,len(vocabulary)-1)
-        except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,len(vocabulary))]
+        if mode == "train":
+            task_id=random.randint(0,train_test_split-1)
+            except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,train_test_split)]
+        else:
+            task_id=random.randint(train_test_split,len(vocabulary)-1)
+            except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,len(vocabulary))]
 
-    lang_num = len(vocabulary[0])
-    except_lg_list = [i for i in range(to_lg)]+[i for i in range(to_lg+1, lang_num)]
+    # lang_num = len(vocabulary[0])
+    # except_lg_list = [i for i in range(to_lg)]+[i for i in range(to_lg+1, lang_num)]
 
-    prompts_few_shot = [[] for _ in range(lang_num-1)]
-    prompts_zero_shot = [[] for _ in range(lang_num-1)]
-    answers=[]
+    prompts_few_shot = []
+    prompts_zero_shot = []
+    answers = []
     for _ in range(prompt_num):
         if not same_task:
-            task_id=random.randint(0,len(vocabulary)-1)
-            except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,len(vocabulary))]
+            if mode == "train":
+                task_id=random.randint(0,train_test_split-1)
+                except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,train_test_split)]
+            else:
+                task_id=random.randint(train_test_split,len(vocabulary)-1)
+                except_id_list=[i for i in range(task_id)]+[i for i in range(task_id+1,len(vocabulary))]
 
         index_list=random.sample(except_id_list, example_num)
 
-        for lg_count, lg_id in enumerate(except_lg_list):
-            prompt=""
-            for pair_id in index_list:
-                prompt=prompt+vocabulary[pair_id][lg_id]+"->"+vocabulary[pair_id][to_lg]+"\n"
-            prompt=prompt+vocabulary[task_id][lg_id]+"->"
-            prompts_few_shot[lg_count].append(prompt)
-            prompts_zero_shot[lg_count].append(vocabulary[task_id][lg_id]+"->")
+        # for lg_count, lg_id in enumerate(except_lg_list):
+        prompt=""
+        for pair_id in index_list:
+            prompt=prompt+vocabulary[pair_id][from_lg]+"->"+vocabulary[pair_id][to_lg]+"\n"
+        prompt=prompt+vocabulary[task_id][from_lg]+"->"
+        prompts_few_shot.append(prompt)
+        prompts_zero_shot.append(vocabulary[task_id][from_lg]+"->")
 
         answers.append(vocabulary[task_id][to_lg])
 
