@@ -32,7 +32,7 @@ def extract_hidden_list(outputs, layer_id, token_pos_list, call_id=0) -> torch.T
 
     return extracted_hiddens_tensor
 
-def break2tokens(tokenizer, promtp: str):
+def break2tokens(tokenizer, promtp):
     inputs = tokenizer(promtp, return_tensors="pt", padding=True)
     
     task_list=[]
