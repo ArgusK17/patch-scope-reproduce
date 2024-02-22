@@ -40,8 +40,8 @@ def global2local(token_pos, prompt_len):
         token_pos_loc=0      
     return call_id, token_pos_loc
 
-def extract_hidden(outputs, layer_id, token_pos) -> torch.Tensor:
-    prompt_len = outputs.hidden_states[0][0].size(0)
+def extract_hidden(outputs, token_pos, layer_id) -> torch.Tensor:
+    prompt_len = outputs.hidden_states[0][0].size(1)
     if isinstance(token_pos, int):
         call_id, token_pos_loc = global2local(token_pos, prompt_len)
         extracted_hiddens = outputs.hidden_states[call_id][layer_id+1][:,token_pos_loc,:]
